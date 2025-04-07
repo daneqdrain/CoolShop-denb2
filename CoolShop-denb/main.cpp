@@ -8,6 +8,7 @@ int usersize = 2;
 bool isAdmin = false;
 std::string* loginArr = new std::string[usersize]{ "Administrator", "User" };
 std::string* passArr = new std::string[usersize]{ "coolshop228", "123123" };
+double* sellsArr = new double[usersize] {0.0, 0.0};
 
 //-----------------------------------------------------------------------------
 //Sklad
@@ -30,14 +31,20 @@ void RefillProduct();
 void RemoveProduct();
 void ChangePrice();
 void Error();
+
+//============================================================
+void ChangeStorage();
 void AddProduct();
 void RenameProduct();
 void DeleteProduct();
 
 //============================================================
-void ChangeStorage();
 
 void ChangeStaff();
+void ShowEmployee();
+void AddNewEmployee();
+void DeleteEmployee();
+void EditEmployee();
 
 template <typename ArrType>
 void FillArray(ArrType staticArr[], ArrType dynamicArr[]);
@@ -51,6 +58,7 @@ int main()
 	delete[] nameArr;
 	delete[] priceArr;
 	delete[] countArr;
+	delete[] sellsArr;
 	return 0;
 }
 
@@ -157,6 +165,11 @@ int GetID(int mode)
 		if (IsNumber(id))
 		{
 			result = std::stoi(id);
+			if (currentSize == usersize && result <= 0)
+			{
+				std::cout << "\n\nОшибка ввода ID\n\n";
+				continue;
+			}
 			if (result > 0 && result <= currentSize)
 			{
 				return result;
@@ -176,7 +189,7 @@ int GetID(int mode)
 
 bool IsNumber(std::string &number)
 {
-	if (number.size() <= 1 || number.size () >= MAXINT - 1)
+	if (number.size() <= 0 || number.size () >= MAXINT - 1)
 	{
 		return false;
 	}
@@ -270,7 +283,7 @@ void ShowAdmMenu()
 		}
 		else if (choose == "7")
 		{
-
+			ChangeStaff();
 		}
 		else if (choose == "8")
 		{
@@ -720,6 +733,227 @@ void ChangeStorage()
 
 void ChangeStaff()
 {
+	std::string choose;
+	while (true)
+	{
+		system("cls");
+		std::cout << "1 - Открыть список сотрудников\n2 - Добавить нового сотрудника\n3 - Редактировать сотрудника\n4 - Уволить сотрудника\n0 - Выход\nВвод: ";
+		Getline(choose);
+		if (choose == "1")
+		{
+			ShowEmployee();
+		}
+		else if (choose == "2")
+		{
+			AddNewEmployee();
+		}
+		else if (choose == "3")
+		{
+			EditEmployee();
+		}
+		else if (choose == "4")
+		{
+			if (usersize > 2)
+			{
+				DeleteEmployee();
+			}
+			else
+			{
+				std::cout << "Остался один сотрудник. Удаление запрещено!\n\n";
+				Sleep(1500);
+			}
+		}
+		else if (choose == "0")
+		{
+			break;
+		}
+		else
+		{
+			Error();
+		}
+	}
+	Sleep(1000);
+}
+
+void ShowEmployee()
+{
+	system("cls");
+	std::cout << "\"\t" << std::left << std::setw(15) << "Логин Сотрудника\t" << std::left << std::setw(15) << "Пароль\t" << "Продажи\n";
+	for (int i = 1; i < usersize; i++)
+	{
+		std::cout << i << "\t" << std::left << std::setw(15) << loginArr[i] << "\t\t" << std::left << std::setw(15) << passArr[i] << "\t" << sellsArr[i] << "\n";
+	}
+	std::cout << "\n\n";
+	system("pause");
+}
+void AddNewEmployee()
+{
+	++usersize;
+	std::string* loginArrTemp = new std::string[usersize];
+	std::string* passArrTemp = new std::string[usersize];
+	double* sellsArrTemp = new double[usersize];
+
+	for (int i = 0; i < usersize - 1; i++)
+	{
+		loginArrTemp[i] = loginArr[i];
+		passArrTemp[i] = passArr[i];
+		sellsArrTemp[i] = sellsArr[i];
+	}
+
+	std::string choose;
+
+	sellsArrTemp[usersize - 1] = 0.0;
+
+	while (true)
+	{
+		system("cls");
+		std::cout << "Введите логин нового сотрудника: ";
+		Getline(choose);
+		if (choose.size() <= 15 && choose.size() >= 4)
+		{
+			loginArrTemp[usersize - 1] = choose;
+			break;
+		}
+		else
+		{
+			std::cout << "\nОшибка длины названия. Минимум 4 символов. Максимум 15 символов.\n";
+			Sleep(1000);
+		}
+	}
+	while (true)
+	{
+		system("cls");
+		std::cout << "Введите пароль нового сотрудника: ";
+		Getline(choose);
+		if (choose.size() <= 15 && choose.size() >= 4)
+		{
+			passArrTemp[usersize - 1] = choose;
+			break;
+		}
+		else
+		{
+			std::cout << "\nОшибка длины пароля. Минимум 4 символов. Максимум 15 символов.\n";
+			Sleep(1000);
+		}
+	}
+
+	std::swap(loginArr, loginArrTemp);
+	std::swap(passArr, passArrTemp);
+	std::swap(sellsArr, sellsArrTemp);
+
+	system("cls");
+
+	std::cout << "Добавлен сотрудник\n";
+	std::cout << "\"\t" << std::left << std::setw(15) << "Логин Сотрудника\t" << std::left << std::setw(15) << "Пароль\t" << "Продажи\n";
+	std::cout << usersize-1 << "\t" << std::left << std::setw(15) << loginArr[usersize - 1] << "\t\t" << std::left << std::setw(15) << passArr[usersize - 1] << "\t" << sellsArr[usersize - 1] << "\n";
+	std::cout << "\n\n";
+
+	system("pause");
+
+	delete[] loginArrTemp;
+	delete[] passArrTemp;
+	delete[] sellsArrTemp;
+}
+
+void DeleteEmployee()
+{
+	system("cls");
+	ShowEmployee();
+	int id = GetID(1);
+	--usersize;
+
+	std::string* loginArrTemp = new std::string[usersize];
+	std::string* passArrTemp = new std::string[usersize];
+	double* sellsArrTemp = new double[usersize];
+
+	for (int i = 1, j = 1; i < usersize; i++, j++)
+	{
+		if (j != id)
+		{
+			loginArrTemp[i] = loginArr[j];
+			passArrTemp[i] = passArr[j];
+			sellsArrTemp[i] = sellsArr[j];
+		}
+		else
+		{
+			j++;
+			loginArrTemp[i] = loginArr[j];
+			passArrTemp[i] = passArr[j];
+			sellsArrTemp[i] = sellsArr[j];
+		}
+	}
+
+	system("cls");
+	std::cout << "Сотрудник уволен\n";
+	std::cout << "\"\t" << std::left << std::setw(15) << "Логин Сотрудника\t" << std::left << std::setw(15) << "Пароль\t" << "Продажи\n";
+	std::cout << id << "\t" << std::left << std::setw(15) << loginArr[id] << "\t\t" << std::left << std::setw(15) << passArr[id] << "\t" << sellsArr[id] << "\n";
+	std::cout << "\n\n";
+
+	
+
+	std::swap(loginArr, loginArrTemp);
+	std::swap(passArr, passArrTemp);
+	std::swap(sellsArr, sellsArrTemp);
+
+	system("pause");
+
+	delete[] loginArrTemp;
+	delete[] passArrTemp;
+	delete[] sellsArrTemp;
+}
+
+void EditEmployee()
+{
+	std::string choose;
+	ShowEmployee();
+	int id = GetID(1);
+	std::cout << "Выберите пункт для редактирования\n1 - Логин\n2 - Пароль\nВвод: ";
+	Getline(choose);
+	if (choose == "1")
+	{
+		while (true)
+		{
+			system("cls");
+			std::cout << "Введите новый логин: ";
+			Getline(choose);
+			if (choose.size() <= 15 && choose.size() >= 4)
+			{
+				loginArr[id] = choose;
+				std::cout << "Логин успешно изменён\n\n";
+				Sleep(1500);
+				break;
+			}
+			else
+			{
+				std::cout << "\nОшибка длины логина. Минимум 4 символов. Максимум 15 символов.\n";
+				Sleep(1000);
+			}
+		}
+	}
+	else if (choose == "2")
+	{
+		while (true)
+		{
+			system("cls");
+			std::cout << "Введите новый пароль: ";
+			Getline(choose);
+			if (choose.size() <= 15 && choose.size() >= 4)
+			{
+				passArr[id] = choose;
+				std::cout << "\n\nПароль успешно изменён\n\n";
+				break;
+			}
+			else
+			{
+				std::cout << "\nОшибка длины пароля. Минимум 4 символов. Максимум 15 символов.\n";
+				Sleep(1000);
+			}
+		}
+	}
+	else
+	{
+		Error();
+	}
 }
 
 template <typename ArrType>
