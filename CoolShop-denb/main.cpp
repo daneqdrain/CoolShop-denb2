@@ -7,7 +7,7 @@
 int usersize = 2;
 bool isAdmin = false;
 std::string* loginArr = new std::string[usersize]{ "Administrator", "User" };
-std::string* passArr = new std::string[usersize]{ "coolshop228", "123123" };
+std::string* passArr = new std::string[usersize]{ "Admin", "123123" };
 double* sellsArr = new double[usersize] {0.0, 0.0};
 
 //-----------------------------------------------------------------------------
@@ -24,7 +24,10 @@ bool Login();
 void Getline(std::string &stringName);
 int GetID(int mode = 0);
 bool IsNumber(std::string &number);
+//============================================================
 void CreateStorage();
+void CreateDynamicStorage();
+//============================================================
 void ShowAdmMenu();
 void ShowStorage(int mode = 0);
 void RefillProduct();
@@ -87,6 +90,8 @@ void Start()
 				else if (choose == "2")
 				{
 					//dynamic склад Administrator
+					CreateDynamicStorage();
+					ShowAdmMenu();
 					break;
 				}
 				else
@@ -238,6 +243,115 @@ void CreateStorage()
 	FillArray(name, nameArr);
 	FillArray(price, priceArr);
 	FillArray(count, countArr);
+}
+
+void CreateDynamicStorage()
+{
+	std::string choose;
+	int count = 0;
+	while (true)
+	{
+		system("cls");
+		std::cout << "\n\nВведите кол-во товаров которые будут на складе: ";
+		Getline(choose);
+		if (IsNumber(choose))
+		{
+			count = std::stoi(choose);
+			if (count > 0)
+			{
+				size = count;
+				delete[] idArr;
+				delete[] nameArr;
+				delete[] priceArr;
+				delete[] countArr;
+				idArr = new int[size];
+				nameArr = new std::string[size];
+				priceArr = new double[size];
+				countArr = new int[size];
+				for (int i = 0; i < size; i++)
+				{
+					idArr[i] = i + 1;
+					while (true)
+					{
+						system("cls");
+						std::cout << "Введите название " << i + 1 << " товара: ";
+						Getline(choose);
+						if (choose.size() <= 25 && choose.size() >= 3)
+						{
+							nameArr[i] = choose;
+							break;
+						}
+						else
+						{
+							std::cout << "\nОшибка длины названия\n";
+							Sleep(1000);
+						}
+					}
+
+					while (true)
+					{
+						system("cls");
+						std::cout << "Введите кол-во " << i + 1 << " товара: ";
+						Getline(choose);
+						if (IsNumber(choose))
+						{
+							count = std::stoi(choose);
+							if (count >= 0 && count <= 100)
+							{
+								countArr[i] = count;
+								break;
+							}
+							else
+							{
+								std::cout << "\n\nНекорректное кол-во. Максимум 100\n\n";
+								Sleep(1500);
+							}
+						}
+						else
+						{
+							Error();
+						}
+					}
+
+					double price = 0;
+					while (true)
+					{
+						system("cls");
+						std::cout << "Введите цену " << i + 1 << " товара: ";
+						Getline(choose);
+						if (IsNumber(choose))
+						{
+							price = std::stod(choose);
+							if (price >= 0 && price <= 799999)
+							{
+								priceArr[i] = price;
+								break;
+							}
+							else
+							{
+								std::cout << "\n\nНекорректная цена. Максимум 799999\n\n";
+								Sleep(1500);
+							}
+						}
+						else
+						{
+							Error();
+						}
+					}
+				}
+				break;
+			}
+			else
+			{
+				std::cout << "Кол-во товара не может быть меньше или равно нулю!";
+				Sleep(1500);
+			}
+		}
+		else
+		{
+			Error();
+		}
+	}
 }
 
 void ShowAdmMenu()
