@@ -49,6 +49,21 @@ void AddNewEmployee();
 void DeleteEmployee();
 void EditEmployee();
 
+//============================================================
+int sizeCheck = 1;
+double cashbox = rand() % 50000 + 50000;
+double eIncome = 0;
+double cashIncome = 0;
+
+std::string* nameArrCheck = new std::string[sizeCheck];
+double* priceArrCheck = new double[sizeCheck];
+int* countArrCheck = new int[sizeCheck];
+double *totalArrCheck = new double[sizeCheck];
+
+void Selling();
+void IncreaseCheckArr();
+void PrintCheck();
+
 template <typename ArrType>
 void FillArray(ArrType staticArr[], ArrType dynamicArr[]);
 
@@ -62,6 +77,10 @@ int main()
 	delete[] priceArr;
 	delete[] countArr;
 	delete[] sellsArr;
+	delete[] nameArrCheck;
+	delete[] priceArrCheck;
+	delete[] countArrCheck;
+	delete[] totalArrCheck;
 	return 0;
 }
 
@@ -200,7 +219,7 @@ bool IsNumber(std::string &number)
 	}
 	for (int i = 0; i < number.size(); i++)
 	{
-		if (!std::isdigit(number[i]))
+		if (!std::isdigit((unsigned char)number[i]))
 		{
 			return false;
 		}
@@ -373,7 +392,7 @@ void ShowAdmMenu()
 		Getline(choose);
 		if (choose == "1")
 		{
-
+			Selling();
 		}
 		else if (choose == "2")
 		{
@@ -1068,6 +1087,121 @@ void EditEmployee()
 	{
 		Error();
 	}
+}
+
+void Selling()
+{
+	std::string choose;
+	int id = 0, count = 0;
+	bool isFirst = true, isBuy = true;
+	while (isBuy)
+	{
+		system("cls");
+		ShowStorage();
+		id = GetID();
+
+		// choose count product
+		while (true)
+		{
+			std::cout << "Введите кол-во товара для покупки: ";
+			Getline(choose);
+			if (IsNumber(choose))
+			{
+				count = std::stoi(choose);
+				if (count > countArr[id - 1] || count < 1)
+				{
+					std::cout << "\nНекорректное кол-во\n\n";
+					Sleep(1000);
+				}
+				else
+				{
+					break;
+				}
+			}
+			else
+			{
+				Error();
+			}
+		}
+
+		
+		if (isFirst)
+		{
+			nameArrCheck[sizeCheck - 1] = nameArr[id - 1];
+			countArrCheck[sizeCheck - 1] = count;
+			priceArrCheck[sizeCheck - 1] = priceArr[id - 1];
+			totalArrCheck[sizeCheck - 1] = count * priceArr[id - 1];
+			isFirst = false;
+		}
+		else
+		{
+			IncreaseCheckArr();
+			nameArrCheck[sizeCheck - 1] = nameArr[id - 1];
+			countArrCheck[sizeCheck - 1] = count;
+			priceArrCheck[sizeCheck - 1] = priceArr[id - 1];
+			totalArrCheck[sizeCheck - 1] = count * priceArr[id - 1];
+		}
+
+		while (true)
+		{
+			std::cout << "Приобрести ещё товар?\n1 - Да\n2 - Нет\nВвод: ";
+			Getline(choose);
+			if (choose == "1")
+			{
+				break;
+			}
+			else if (choose == "2")
+			{
+				isBuy = false;
+				break;
+			}
+			else
+			{
+				Error();
+			}
+		}
+	}
+
+	std::cout << "TEST!!!!!!!!!!!!!!!!!\n\n"; // stay
+	PrintCheck();
+	system("pause");
+}
+
+void IncreaseCheckArr()
+{
+	++sizeCheck;
+	std::string* nameArrCheckTemp = new std::string[sizeCheck];
+	double *priceArrTemp = new double[sizeCheck];
+	int* countArrCheckTemp = new int[sizeCheck];
+	double* totalArrCheckTemp = new double[sizeCheck];
+
+	for (int i = 0; i < sizeCheck - 1; i++)
+	{
+		nameArrCheckTemp[i] = nameArrCheck[i];
+		priceArrTemp[i] = priceArrCheck[i];
+		countArrCheckTemp[i] = countArrCheck[i];
+		totalArrCheckTemp[i] = totalArrCheck[i];
+	}
+
+	std::swap(nameArrCheck, nameArrCheckTemp);
+	std::swap(priceArrCheck, priceArrTemp);
+	std::swap(countArrCheck, countArrCheckTemp);
+	std::swap(totalArrCheck, totalArrCheckTemp);
+
+	delete[] nameArrCheckTemp;
+	delete[] priceArrTemp;
+	delete[] countArrCheckTemp;
+	delete[] totalArrCheckTemp;
+}
+
+void PrintCheck()
+{
+	std::cout << "№\t" << std::left << std::setw(25) << "Название товара\t\t" << "Цена за ед\t" << "Кол-во\t" << "Итого\n";
+	for (int i = 0; i < sizeCheck; i++)
+	{
+		std::cout << i + 1 << "\t" << std::left << std::setw(25) << nameArrCheck[i] << "\t" << priceArrCheck[i] << "\t\t" << countArrCheck[i] << "\t" << totalArrCheck[i] << "\n";
+	}
+	std::cout << "\n\n";
 }
 
 template <typename ArrType>
