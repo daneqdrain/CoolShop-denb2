@@ -5,6 +5,7 @@
 
 //database
 int usersize = 2;
+int userId = 0;
 bool isAdmin = false;
 std::string* loginArr = new std::string[usersize]{ "Administrator", "User" };
 std::string* passArr = new std::string[usersize]{ "Admin", "123123" };
@@ -51,9 +52,9 @@ void EditEmployee();
 
 //============================================================
 int sizeCheck = 1;
-double cashbox = rand() % 50000 + 50000;
 double eIncome = 0;
 double cashIncome = 0;
+double cashbox = 0;
 
 std::string* nameArrCheck = new std::string[sizeCheck];
 double* priceArrCheck = new double[sizeCheck];
@@ -63,6 +64,9 @@ double *totalArrCheck = new double[sizeCheck];
 void Selling();
 void IncreaseCheckArr();
 void PrintCheck();
+void ResetCheck();
+void ShowIncome();
+//============================================================
 
 template <typename ArrType>
 void FillArray(ArrType staticArr[], ArrType dynamicArr[]);
@@ -88,7 +92,7 @@ void Start()
 {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
-
+	srand(time(NULL));
 	std::cout << "\n\n\t\t\t Вас приветствует MonsterGPU\n\n";
 	if (Login())
 	{
@@ -103,6 +107,7 @@ void Start()
 				{
 					//ready склад Administrator
 					CreateStorage();
+					cashbox = rand() % 50000 + 50000;
 					ShowAdmMenu();
 					break;
 				}
@@ -110,6 +115,7 @@ void Start()
 				{
 					//dynamic склад Administrator
 					CreateDynamicStorage();
+					cashbox = rand() % 50000 + 50000;
 					ShowAdmMenu();
 					break;
 				}
@@ -144,6 +150,7 @@ bool Login()
 		if (login == loginArr[0] && pass == passArr[0])
 		{
 			isAdmin = true;
+			userId = 0;
 			std::cout << "Добро пожаловать " << loginArr[0] << "\nВаш статус: Administrator\n\n";
 			return true;
 		}
@@ -152,6 +159,7 @@ bool Login()
 			if (login == loginArr[i] && pass == passArr[i])
 			{
 				isAdmin = false;
+				userId = i;
 				std::cout << "Добро пожаловать " << loginArr[i] << "\nВаш статус: ПРОДАВЕЦ\n\n";
 				return true;
 			}
@@ -1093,7 +1101,9 @@ void Selling()
 {
 	std::string choose;
 	int id = 0, count = 0;
-	bool isFirst = true, isBuy = true;
+	bool isFirst = true, isBuy = true, isSold = false;
+	double totalSum = 0, cash = 0;
+	ResetCheck();
 	while (isBuy)
 	{
 		system("cls");
@@ -1131,6 +1141,8 @@ void Selling()
 			countArrCheck[sizeCheck - 1] = count;
 			priceArrCheck[sizeCheck - 1] = priceArr[id - 1];
 			totalArrCheck[sizeCheck - 1] = count * priceArr[id - 1];
+			countArr[id - 1] -= count;
+			totalSum += count * priceArr[id - 1];
 			isFirst = false;
 		}
 		else
@@ -1140,6 +1152,8 @@ void Selling()
 			countArrCheck[sizeCheck - 1] = count;
 			priceArrCheck[sizeCheck - 1] = priceArr[id - 1];
 			totalArrCheck[sizeCheck - 1] = count * priceArr[id - 1];
+			countArr[id - 1] -= count;
+			totalSum += count * priceArr[id - 1];
 		}
 
 		while (true)
@@ -1161,10 +1175,88 @@ void Selling()
 			}
 		}
 	}
+	while (!isSold)
+	{
+		system("pause");
+		system("cls");
+		PrintCheck();
+		std::cout << "\t\t\t\t\tИтого: " << totalSum << "\n\nВыберите способы оплаты\n1)Наличные\n2)Безналичные\nВвод: ";
+		//вывести отдельно сумму с учетом скидки
+		Getline(choose);
+		if (choose == "1")
+		{
+			while (true)
+			{
+				std::cout << "Введите кол-во наличных: ";
+				Getline(choose);
+				if (IsNumber(choose))
+				{
+					cash = std::stod(choose);
+					if (cash <= 0 || cash < totalSum)
+					{
+						std::cout << "Недостаточно средств\n\n";
+					}
+					else if(cash - totalSum > cashbox)
+					{
+						std::cout << "\n\nСДАЧИ НЕТ!\n\n";
+					}
+					else
+					{
+						std::cout << "Ваши " << cash << "\nОплата прошла успешно\nВаша сдача: " << cash - totalSum << "\n\n";
+						cashbox += cash - (cash - totalSum);
+						cashIncome += totalSum;
+						sellsArr[userId] += totalSum;
+						isSold = true;
+						Sleep(1500);
+					}
+					break;
+				}
+				else
+				{
+					Error();
+				}
+			}
+		}
+		else if (choose == "2")
+		{
+			while (true)
+			{
+				std::cout << "Пожалуйста приложите свою карту\n\n";
+				system("pause");
+				if (rand() % 7 <= 2)
+				{
+					for (int i = 0; i < 5; i++)
+					{
+						std::cout << i + 1 << " ";
+						Sleep(850);
+					}
+					std::cout << "Ошибка соединения. Повторите попытку!\n\n";
+					Sleep(1500);
+					system("cls");
+				}
+				else
+				{
+					for (int i = 0; i < 5; i++)
+					{
+						std::cout << i + 1 << " ";
+						Sleep(850);
+					}
+					std::cout << "Оплата прошла успешно!\n\n";
+					eIncome += totalSum;
+					sellsArr[userId] += totalSum;
+					Sleep(1500);
+					break;
+				}
+			}
+			break;
+		}
+		else
+		{
+			Error();
+		}
+	}	
 
-	std::cout << "TEST!!!!!!!!!!!!!!!!!\n\n"; // stay
-	PrintCheck();
-	system("pause");
+	
 }
 
 void IncreaseCheckArr()
@@ -1202,6 +1294,29 @@ void PrintCheck()
 		std::cout << i + 1 << "\t" << std::left << std::setw(25) << nameArrCheck[i] << "\t" << priceArrCheck[i] << "\t\t" << countArrCheck[i] << "\t" << totalArrCheck[i] << "\n";
 	}
 	std::cout << "\n\n";
+}
+
+void ResetCheck()
+{
+	sizeCheck = 1;
+	delete[] nameArrCheck;
+	delete[] priceArrCheck;
+	delete[] countArrCheck;
+	delete[] totalArrCheck;
+
+	nameArrCheck = new std::string[sizeCheck];
+	priceArrCheck = new double[sizeCheck];
+	countArrCheck = new int[sizeCheck];
+	totalArrCheck = new double[sizeCheck];
+}
+
+void ShowIncome()
+{
+	system("cls");
+	std::cout << "Наличные в кассе: " << cashbox << "\n\nПрибыль за наличку: " << cashIncome << "\nПрибыль по безналу: "
+		<< eIncome << "\n\nИтоговая прибыль за смену: " << cashIncome + eIncome << "\nВаши продажи: " << sellsArr[userId] << "\n\n\n";
+	system("pause");
+
 }
 
 template <typename ArrType>
