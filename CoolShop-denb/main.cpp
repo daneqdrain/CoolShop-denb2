@@ -66,6 +66,8 @@ void IncreaseCheckArr();
 void PrintCheck();
 void ResetCheck();
 void ShowIncome();
+//================discounts=================================== 
+int Discount(double totalsum);
 //============================================================
 
 template <typename ArrType>
@@ -428,7 +430,7 @@ void ShowAdmMenu()
 		}
 		else if (choose == "8")
 		{
-
+			ShowIncome();
 		}
 		else if (choose == "0")
 		{
@@ -1175,13 +1177,22 @@ void Selling()
 			}
 		}
 	}
+	int procdiscount = Discount(totalSum);
+	double discountedtotal = totalSum - ((totalSum / 100) * procdiscount);
 	while (!isSold)
 	{
 		system("pause");
 		system("cls");
 		PrintCheck();
-		std::cout << "\t\t\t\t\tИтого: " << totalSum << "\n\nВыберите способы оплаты\n1)Наличные\n2)Безналичные\nВвод: ";
-		//вывести отдельно сумму с учетом скидки
+		if (procdiscount)
+		{
+			std::cout << "\t\t\t\t\tИтого: " << totalSum << "\n\t\t\t\t\tИтого с учётом скидок: " << discountedtotal << "\n\t\t\t\t\tСкидка: " << procdiscount << "%"
+				<< "\n\nВыберите способы оплаты\n1)Наличные\n2)Безналичные\nВвод: ";
+		}
+		else
+		{
+			std::cout << "\t\t\t\t\tИтого: " << totalSum << "\n\nВыберите способы оплаты\n1)Наличные\n2)Безналичные\nВвод: ";
+		}
 		Getline(choose);
 		if (choose == "1")
 		{
@@ -1192,20 +1203,20 @@ void Selling()
 				if (IsNumber(choose))
 				{
 					cash = std::stod(choose);
-					if (cash <= 0 || cash < totalSum)
+					if (cash <= 0 || cash < discountedtotal)
 					{
 						std::cout << "Недостаточно средств\n\n";
 					}
-					else if(cash - totalSum > cashbox)
+					else if(cash - discountedtotal > cashbox)
 					{
 						std::cout << "\n\nСДАЧИ НЕТ!\n\n";
 					}
 					else
 					{
-						std::cout << "Ваши " << cash << "\nОплата прошла успешно\nВаша сдача: " << cash - totalSum << "\n\n";
-						cashbox += cash - (cash - totalSum);
-						cashIncome += totalSum;
-						sellsArr[userId] += totalSum;
+						std::cout << "Ваши " << cash << "\nОплата прошла успешно\nВаша сдача: " << cash - discountedtotal << "\n\n";
+						cashbox += cash - (cash - discountedtotal);
+						cashIncome += discountedtotal;
+						sellsArr[userId] += discountedtotal;
 						isSold = true;
 						Sleep(1500);
 					}
@@ -1242,13 +1253,13 @@ void Selling()
 						Sleep(850);
 					}
 					std::cout << "Оплата прошла успешно!\n\n";
-					eIncome += totalSum;
-					sellsArr[userId] += totalSum;
+					eIncome += discountedtotal;
+					sellsArr[userId] += discountedtotal;
+					isSold = true;
 					Sleep(1500);
-					break;
 				}
+				break;
 			}
-			break;
 		}
 		else
 		{
@@ -1317,6 +1328,20 @@ void ShowIncome()
 		<< eIncome << "\n\nИтоговая прибыль за смену: " << cashIncome + eIncome << "\nВаши продажи: " << sellsArr[userId] << "\n\n\n";
 	system("pause");
 
+}
+
+int Discount(double totalsum)
+{
+	int procdiscount = 0;
+	if (sizeCheck >= 2)
+	{
+		procdiscount += (sizeCheck / 2) * 5;
+	}
+	if (totalsum >= 100000)
+	{
+		procdiscount += 7;
+	}
+	return procdiscount;
 }
 
 template <typename ArrType>
